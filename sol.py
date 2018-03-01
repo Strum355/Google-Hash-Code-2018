@@ -90,14 +90,12 @@ def assign():
                     '''
                     if (abs(rides[i][1] - rides[i][3]) + abs(rides[i][2] - rides[i][4])) + curr_step > steps:
                         continue
-                    total_dist = distance_between(rides[i][1], rides[i][2], rides[i][3], rides[i][4])
-                    diff = abs(distance_to_start(car, rides[i][1], rides[i][2]) - (rides[i][5] - curr_step))*total_dist
+                    diff = abs(distance_to_start(car, rides[i][1], rides[i][2]) - (rides[i][5] - curr_step))
                     if diff <= best_diff:
                         best_diff = diff
                         best = i
-            if best > -1:
-                rides[best][7] = True
-                car.assigned = best
+            rides[best][7] = True
+            car.assigned = best
 
 
 # ride indexes

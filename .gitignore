@@ -1,0 +1,6 @@
+*.out
+*.in
+*.pseudo
+*.sh
+*.pdf
+test.py
