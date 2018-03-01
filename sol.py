@@ -11,21 +11,17 @@ class Car:
         self.x = 0
         self.y = 0
         self.rides = [] # all the rides it has done
-        self.assigned = None # suppose to do this ride number
+        self.assigned = None # index in rides array
         self.has_ride = False # has picked up ride
 
-    #def __str__(self):
-    #    return "{}".format(self.rides)
 
 cars = [Car() for i in range(fleet_size)]
-free_cars = []
 rides = []
 for i in range(num_rides):
     data = [i]
     data.extend(list(map(int, input().split())))
     data.append(False)
     rides.append(data)
-#rides.sort(key=lambda x: x[5])
 
 def is_at_ride(car):
     # check if at start
@@ -40,7 +36,6 @@ def is_early(car):
     return False
 
 def move(car, toStart=True):
-    #print("moving")
     if toStart:
         x = 1
         y = 2
@@ -79,15 +74,6 @@ def assign():
             for i in range(len(rides)):
                 #Ride not taken yet
                 if not rides[i][7]:
-                    '''
-                    Could definitely change this, sub-optimal (waiting times)
-                    If at the position
-                    dist to start == 0,
-                    earliest start = 500
-                    curr step = 0
-                    result = -500
-                    car waits for 500 lol
-                    '''
                     if (abs(rides[i][1] - rides[i][3]) + abs(rides[i][2] - rides[i][4])) + curr_step > steps:
                         continue
                     diff = abs(distance_to_start(car, rides[i][1], rides[i][2]) - (rides[i][5] - curr_step))
@@ -104,6 +90,7 @@ def assign():
 # 3,4 - row, col for destination
 # 5   - min start time
 # 6   - latest finish time
+# 7   - is finished/dropped
 
 def reset(car):
     rides[car.assigned][7] = True
