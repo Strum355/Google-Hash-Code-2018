@@ -58,12 +58,18 @@ def distance_to_finish(car):
     # | a -x | + | b - y |
     return abs(rides[car.assigned][1] - rides[car.assigned][3]) + abs(rides[car.assigned][2] - rides[car.assigned][4])
 
-def distance_between(x1, y1, x2, y2):
-    return abs(x1 - x2) + abs(y1 - y2)
+def distance_of_ride(i):
+    return abs(rides[i][1] - rides[i][3]) + abs(rides[i][2] - rides[i][4])
 
-def distance_to_start(car, x, y):
+def distance_to_start_i(car, i):
     # | a -x | + | b - y |
-    return abs(x - car.x) + abs(y - car.y)
+    return abs(car.x - rides[i][1]) + abs(car.y - rides[i][2])
+
+def reset(car):
+    rides[car.assigned][7] = True
+    car.assigned = None
+    car.has_ride = False
+
 
 def assign():
     for car in cars:
@@ -74,9 +80,10 @@ def assign():
             for i in range(len(rides)):
                 #Ride not taken yet
                 if not rides[i][7]:
-                    if (abs(rides[i][1] - rides[i][3]) + abs(rides[i][2] - rides[i][4])) + curr_step > steps:
+                    if distance_of_ride(i) + curr_step > steps:
                         continue
-                    diff = abs(distance_to_start(car, rides[i][1], rides[i][2]) - (rides[i][5] - curr_step))
+                    time_until_start = rides[i][5] - curr_step
+                    diff = abs(distance_to_start_i(car, i) - time_until_start)
                     if diff <= best_diff:
                         best_diff = diff
                         best = i
@@ -92,24 +99,24 @@ def assign():
 # 6   - latest finish time
 # 7   - is finished/dropped
 
-def reset(car):
-    rides[car.assigned][7] = True
-    car.assigned = None
-    car.has_ride = False
 
 assign()
 
-while not curr_step == steps:
-
+while curr_step < steps:
     # moving of the cars
     for car in cars:
         #if assigned
-        if not car.assigned == None:
+        if car.assigned is not None:
+            if car.has_ride:
+                # Move car to its destination
+                move(car, toStart=False)
+                if at_destination(car):
+                    car.rides.append(rides[car.assigned][0])
+                    reset(car)
             # if not picked up
-            if not car.has_ride:
+            else:
                 #on time/late and at ride
                 if not is_early(car) and is_at_ride(car):
-
                     # CANT make it on time for the ride, so forget about it.
                     if distance_to_finish(car) > rides[car.assigned][6] - curr_step:
                         reset(car)
@@ -120,21 +127,11 @@ while not curr_step == steps:
                         if at_destination(car): # one move after start
                             car.rides.append(rides[car.assigned][0])
                             reset(car)
-                        else:
-                            continue # go on to the next car
-                # early and not at ride
-                elif is_early(car) and not is_at_ride(car):
+
+                #If not at the ride, move towards the start position
+                elif not is_at_ride(car):
                     move(car, toStart=True)
-                elif not is_early(car) and not is_at_ride(car):
-                    move(car, toStart=True)
-            else:
-                # have someone
-                move(car, toStart=False)
-                if at_destination(car):
-                    car.rides.append(rides[car.assigned][0])
-                    reset(car)
-                else:
-                    continue # go on to the next car
+
     assign()
     curr_step+=1
 
