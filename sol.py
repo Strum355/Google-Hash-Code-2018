@@ -1,11 +1,32 @@
-'''for each ride:
-    find car for which distance to ride == earliest time - current time'''
+'''
+Assignment
+-If Completeable:
+-   Find the ride with the lowest value for "diff":
+        Where diff is the difference between the 
+        distance to the starting position and earliest start time.
+        Multiply the difference by the value of the distance/earliest start (or by 1, if they're 0)
+        In order to favour closer distances/early starts.
+        
+        Example:
+            Ride 1: 
+                Distance to starting position: 4
+                Earliest start: 5
+                Difference = 1
+                Difference = 1 * Distance
+                Final value = 5
+            Ride 2:
+                Distance to starting position: 500
+                Earliest start: 500
+                Difference = 0
+                Difference = 1 * 500 (Multiplied by 1 if the difference is 0)
+                Final value = 500
+            In this case, ride 1 is chosen.
+'''
 
 import sys
 
 rows, columns, fleet_size, num_rides, bonus, steps = map(int, input().split())
 curr_step = 0
-
 class Car:
     def __init__(self):
         self.x = 0
@@ -14,7 +35,7 @@ class Car:
         self.assigned = None # index in rides array
         self.has_ride = False # has picked up ride
 
-
+        
 cars = [Car() for i in range(fleet_size)]
 rides = []
 for i in range(num_rides):
@@ -71,25 +92,6 @@ def reset(car):
     car.has_ride = False
 
 
-def assign():
-    for car in cars:
-        # free car
-        if car.assigned == None:
-            best = -1
-            best_diff = sys.maxsize
-            for i in range(len(rides)):
-                #Ride not taken yet
-                if not rides[i][7]:
-                    if distance_of_ride(i) + curr_step > steps:
-                        continue
-                    time_until_start = rides[i][5] - curr_step
-                    diff = abs(distance_to_start_i(car, i) - time_until_start)
-                    if diff <= best_diff:
-                        best_diff = diff
-                        best = i
-            rides[best][7] = True
-            car.assigned = best
-
 
 # ride indexes
 # 0   - ride number
@@ -99,9 +101,40 @@ def assign():
 # 6   - latest finish time
 # 7   - is finished/dropped
 
+def assign():
+    for car in cars:
+        # free car
+        if car.assigned == None:
+            best = -1
+            best_diff = sys.maxsize
+            for i in range(len(rides)):
+                #Ride not taken yet
+                if not rides[i][7]:
+                    ##Tests if the ride is Completeable
+                    #Can't finish before the end
+                    #if distance_of_ride(i) + curr_step > steps:
+                    #    rides[i][7] = True
+                    #    continue
+                    #Time to get there is later than the finish time
+                    #if distance_to_start_i(car, i) + distance_of_ride(i) + curr_step > rides[i][6]:
+                    #    continue
+
+                    ##Ride can be completed.
+                    Trying to find the best one
+                    time_until_start = rides[i][5] - curr_step
+                    diff = max(1, distance_to_start_i(car, i) - time_until_start)
+                    diff *= max(1, time_until_start)
+                    if diff <= best_diff:
+                        best_diff = diff
+                        best = i
+            #Some ride was found
+            if best >= 0:
+                rides[best][7] = True
+                car.assigned = best
+
+
 
 assign()
-
 while curr_step < steps:
     # moving of the cars
     for car in cars:
@@ -131,9 +164,9 @@ while curr_step < steps:
                 #If not at the ride, move towards the start position
                 elif not is_at_ride(car):
                     move(car, toStart=True)
-
     assign()
     curr_step+=1
+
 
 for car in cars:
     print(len(car.rides), " ".join(map(str, car.rides)))
