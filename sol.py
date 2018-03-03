@@ -1,3 +1,5 @@
+#!/home/noah/pypy3/bin/pypy3
+
 '''
 Assignment
 -If Completeable:
@@ -112,15 +114,15 @@ def assign():
                 if not rides[i][7]:
                     ##Tests if the ride is Completeable
                     #Can't finish before the end
-                    #if distance_of_ride(i) + curr_step > steps:
-                    #    rides[i][7] = True
-                    #    continue
+                    if distance_of_ride(i) + curr_step > steps:
+                        rides[i][7] = True
+                        continue
                     #Time to get there is later than the finish time
-                    #if distance_to_start_i(car, i) + distance_of_ride(i) + curr_step > rides[i][6]:
-                    #    continue
+                    if distance_to_start_i(car, i) + distance_of_ride(i) + curr_step > rides[i][6]:
+                        continue
 
                     ##Ride can be completed.
-                    Trying to find the best one
+                    #Trying to find the best one
                     time_until_start = rides[i][5] - curr_step
                     diff = max(1, distance_to_start_i(car, i) - time_until_start)
                     diff *= max(1, time_until_start)
@@ -131,8 +133,6 @@ def assign():
             if best >= 0:
                 rides[best][7] = True
                 car.assigned = best
-
-
 
 assign()
 while curr_step < steps:
